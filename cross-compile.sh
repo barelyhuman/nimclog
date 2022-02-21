@@ -11,6 +11,17 @@ build_commands=('
     ; nim c -d:release -d:mingw --cpu:amd64 -o:bin/windows-amd64/nimclog.exe src/nimclog.nim
 ')
 
+# run a docker container with osxcross and cross compile everything
 docker run -it --rm -v `pwd`:/usr/local/src \
    chrishellerappsian/docker-nim-cross:latest \
    /bin/bash -c "choosenim stable; $build_commands"
+
+
+# create archives
+cd bin
+for dir in $(ls -d *);
+do 
+    tar cfzv "$dir".tgz $dir
+    rm -rf $dir
+done
+cd ..

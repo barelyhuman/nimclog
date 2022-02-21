@@ -1,3 +1,5 @@
 commitlog.md
 nimclog
 nimclog.deps
+bin
+.DS_Store
