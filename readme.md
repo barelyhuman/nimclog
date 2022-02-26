@@ -10,13 +10,31 @@ also, to get better at nimlang
 
 ## Features
 
-- Sort git's logs into `features, fixes, others`
+- Categorize git's logs into `["build","chore","ci","docs","feat","fix","perf","refactor","revert","style","test"]`
+- Doesn't support scoped commits right now
 - That's about it.
+
+## Usage
+
+```sh
+# for everything
+nimclog
+
+# for a specific range
+nimclog --start=<gitrevision> --end=<gitrevision>
+
+# shorthand props for the same
+nimclog -s=<gitrevision>
+nimclog -e=<gitrevision>
+
+```
 
 ## Installation
 
-I'm still testing the cross compiled binaries so you'll have to wait for it.
-Till then, you can compile it on your system using `nim` or `nimble`
+Cross compiled binaries can be found on the releases pages.
+Windows builds have not been tested, please report if you find any issues running them.
+
+You can also compile it on your own system using `nim` or `nimble`
 
 ```sh
 nimble build
