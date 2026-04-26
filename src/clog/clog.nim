@@ -11,12 +11,14 @@ type
     Flags* = object
         startCommit: string
         endCommit: string
+        verbose: bool
 
 
 proc readParams():Flags =
     var flags = Flags(
         startCommit:"",
-        endCommit:""
+        endCommit:"",
+        verbose: false
     )
     var resString = ""
 
@@ -30,29 +32,49 @@ proc readParams():Flags =
         case parser.kind
         of cmdEnd: break
         of cmdShortOption, cmdLongOption:
-            if parser.val == "":
-                echo "hello"
-            else:
-                case parser.key
-                of "s","start":
-                    flags.startCommit = parser.val
-                of "e","end":
-                    flags.endCommit = parser.val
+            case parser.key
+            of "v","verbose":
+                flags.verbose = true
+            of "s","start":
+                flags.startCommit = parser.val
+            of "e","end":
+                flags.endCommit = parser.val
+            else: discard
 
-        of cmdArgument:
-            echo "Argument: ", parser.key
+        of cmdArgument: discard
 
     return flags
 
-proc createInitialCommits*(flags:Flags) =
-    echo(flags.startCommit)
-    echo(flags.endCommit)
+proc isValidRef(r: string): bool =
+    return execShellCmd("git cat-file -e " & r) == 0
+
+proc isAncestor(a, b: string): bool =
+    return execShellCmd("git merge-base --is-ancestor " & a & " " & b) == 0
+
+proc createInitialCommits*(flags: Flags) =
     when defined(posix):
+        var startRef = flags.startCommit
+        var endRef = flags.endCommit
+
+        if startRef != "" and not isValidRef(startRef):
+            echo("Warning: start ref '" & startRef & "' is not a valid repository ref, ignoring")
+            startRef = ""
+
+        if endRef != "" and not isValidRef(endRef):
+            echo("Warning: end ref '" & endRef & "' is not a valid repository ref, ignoring")
+            endRef = ""
+
+        if startRef != "" and endRef != "":
+            if not isAncestor(startRef, endRef):
+                swap(startRef, endRef)
+                if flags.verbose:
+                    echo("Note: swapped start and end for correct ordering")
+
         var cmd = "git log"
-        if flags.startCommit != "":
-            cmd = cmd & " " & flags.startCommit
-        if flags.endCommit != "":
-            cmd = cmd & ".." & flags.endCommit
+        if startRef != "":
+            cmd = cmd & " " & startRef
+        if endRef != "":
+            cmd = cmd & ".." & endRef
         cmd = cmd & " --pretty=oneline > commitlog.md"
         discard execShellCmd(cmd)
 
