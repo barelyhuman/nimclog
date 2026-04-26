@@ -14,6 +14,21 @@ type
         verbose: bool
 
 
+const helpText = """
+Usage: nimclog [options]
+
+Options:
+  -h, --help               Show this help message
+  -v, --verbose            Enable verbose output
+  -s, --start=<revision>   Start git revision for the log range
+  -e, --end=<revision>     End git revision for the log range
+
+Examples:
+  nimclog
+  nimclog --start=<gitrevision> --end=<gitrevision>
+  nimclog -s=<gitrevision> -e=<gitrevision>
+"""
+
 proc readParams():Flags =
     var flags = Flags(
         startCommit:"",
@@ -33,6 +48,9 @@ proc readParams():Flags =
         of cmdEnd: break
         of cmdShortOption, cmdLongOption:
             case parser.key
+            of "h","help":
+                echo helpText
+                quit(0)
             of "v","verbose":
                 flags.verbose = true
             of "s","start":
