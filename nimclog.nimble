@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.0.2"
 author        = "Reaper"
 description   = "commitlog but in nim"
 license       = "MIT"
