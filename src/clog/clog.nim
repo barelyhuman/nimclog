@@ -8,18 +8,18 @@ type
     CategoryPair* = object
         commit: string
         category: string
-    Flags* = object 
+    Flags* = object
         startCommit: string
         endCommit: string
 
 
-proc readParams():Flags = 
+proc readParams():Flags =
     var flags = Flags(
         startCommit:"",
-        endCommit:""    
+        endCommit:""
     )
     var resString = ""
-    
+
     for param in commandLineParams():
         resString = resString & " " & param
 
@@ -37,20 +37,22 @@ proc readParams():Flags =
                 of "s","start":
                     flags.startCommit = parser.val
                 of "e","end":
-                    flags.endCommit = parser.val    
-                
+                    flags.endCommit = parser.val
+
         of cmdArgument:
             echo "Argument: ", parser.key
-    
+
     return flags
 
 proc createInitialCommits*(flags:Flags) =
+    echo(flags.startCommit)
+    echo(flags.endCommit)
     when defined(posix):
         var cmd = "git log"
         if flags.startCommit != "":
             cmd = cmd & " " & flags.startCommit
         if flags.endCommit != "":
-            cmd = cmd & " " & flags.endCommit
+            cmd = cmd & ".." & flags.endCommit
         cmd = cmd & " --pretty=oneline > commitlog.md"
         discard execShellCmd(cmd)
 
